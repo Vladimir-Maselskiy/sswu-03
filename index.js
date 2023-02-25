@@ -494,3 +494,164 @@ const isBracketsPair = str => {
 //   'Запашний ) (аромат (квітів)) зігріває (наші серця) і наповнює ({наші душі) незрівнянною} красою (природи). Вітер грає з листям (дерев) і дарує ((нам) приємне прохолоду (влітку)). Сонце, яке зійшло {((вранці))}, надає (всім рослинам) життєву силу, а нічні зірки (на небі) створюють неповторний (обрій). Ця (неймовірна) гармонія (природи) надихає (нас) на нові відкриття (у житті) і дарує (безцінний) відпочинок (для душі).';
 
 // console.log(isBracketsPair(str));
+
+// -----------------------------------------------------------------------------------------------------
+// Задача15
+// Запросіть користувача ввести якусь фразу. Відобразіть кожне слово у
+// вигляді списку ul li. Також відобразіть перше слово UPPERCASE, а останні 2
+// з маленької. Знайдіть усі літери "а" їх кількість виведіть у alert вікно. Після
+// закриття alert - реалізувати скрипт, який через 5 хвилин бездіяльності
+// користувача (нічого не натискається, нічого не виділяється, не рухається
+// прогрес-бар) висвітлює повідомлення "Ви ще тут?" Якщо так, користувач
+// залишається на сторінці, якщо ні сторінка закривається.
+
+const dialog = () => {
+  let arrModify = [];
+  const str = prompt('Введіть деякий текст');
+  const arr = str.split(' ');
+  const firstWord = arr.shift().toUpperCase();
+  const lastWord = arr.pop()?.toLowerCase();
+  const preLastWord = arr.pop()?.toLowerCase();
+  if (firstWord) arrModify.push(firstWord);
+  arrModify = [...arrModify, ...arr];
+  if (preLastWord) arrModify.push(preLastWord);
+  if (lastWord) arrModify.push(lastWord);
+
+  if (arrModify.length > 0) {
+    const ul = document.createElement('ul');
+    arrModify.forEach(word => {
+      const li = document.createElement('li');
+      li.textContent = word;
+      ul.append(li);
+    });
+    const body = document.body;
+    body.append(ul);
+  }
+  console.log('arrModify', arrModify);
+  const countChar = arrModify
+    .join('')
+    .split('')
+    .filter(char => char === 'a' || char === 'а').length;
+  alert(
+    `Ось кількість "a" (lowerCase) у відформатованому тексті: ${countChar}`
+  );
+  let id;
+  const startInterval = () => {
+    id = setInterval(() => alert('Ви ще тут?'), 5000 * 60);
+  };
+  startInterval();
+
+  const resetInterval = () => {
+    clearInterval(id);
+    startInterval();
+  };
+  document.addEventListener('mousemove', resetInterval);
+  document.addEventListener('keydown', resetInterval);
+  //  реакція події на зміну стану прогресбару залежить від  реалізіції конкретного прогресбару
+};
+
+// Test-15
+// dialog();
+
+// -----------------------------------------------------------------------------------------------------
+// Задача16
+// Створити пароль для користувача. Вимоги: довжина від 6 до 20
+// символів повинен бути рівно один символ підкреслення, хоча б дві великі
+// літери, не більше 5 цифр, будь-які дві цифри поспіль неприпустимі.
+
+const createPassword = () => {
+  const getPassword = () => {
+    const password = [];
+    let numberCounter = 0;
+
+    //   отримуємо випадкову довжину паролю
+    const passwordLength = Math.ceil(6 + Math.random() * 14);
+    console.log('passwordLength', passwordLength);
+
+    //   фукція отримання випадкового символу
+    const getRandomChar = () => {
+      return String.fromCharCode(Math.floor(33 + Math.random() * 89));
+      //   return String.fromCharCode(Math.floor(48 + Math.random() * 16));
+    };
+
+    //   цикл який формує пароль додаючи 1 випадковий символ за 1 ітерацію
+    while (password.length < passwordLength - 1) {
+      const randomChar = getRandomChar();
+
+      // якщо випадковий символ число та астаннійсивол у масиві число то пропускаємо ітерацію
+      if (!isNaN(randomChar) && !isNaN(password[password.length - 1])) {
+        continue;
+      }
+
+      // якщо випадковий символ число і кількість чисел більше/рівно 5, то пропускаємо ітерацію
+      if (!isNaN(randomChar) && numberCounter >= 5) continue;
+
+      //якщо випадковий символ "_". пропускаємо додавання
+      if (randomChar === '_') continue;
+
+      // якщо пройшли всі перевірки, то додаємо елемент в масив
+      password.push(randomChar);
+
+      // якщо додали число, то збільшуємо каунтер який відповідає за кількість чисель в паролі
+      if (!isNaN(randomChar)) numberCounter += 1;
+    }
+    password.splice(Math.ceil(Math.random() * password.length - 1), 0, '_');
+    return password;
+  };
+  // перевіряємо чи кількість літер у верхнбому регістрі >=2
+  const regex = /[A-Z]/;
+  let isPasswordValid = false;
+  let password;
+
+  //   якщо кількість літер у в. регістрі >=2 віддаемо пароль, якщо ні, то генеруеємо новий та знову перевіряемо цю умову
+  while (!isPasswordValid) {
+    password = getPassword();
+    console.log('password', password);
+
+    if (password.filter(char => regex.test(char)).length >= 2)
+      isPasswordValid = true;
+  }
+  return password.join('');
+};
+
+// Test-16
+// console.log(createPassword());
+
+// -----------------------------------------------------------------------------------------------------
+// Задача17
+// NATIVE+LODASH
+// В заданому масиві найменший елемент помістити на перше місце,
+// найменший з тих, що залишилися - на останнє місце, наступний -
+// передостаннє і так далі - до середини масиву.
+
+const reSortArray = arr => {
+  const resArray = [];
+  const sortedArray = arr.sort((a, b) => a - b);
+  sortedArray.forEach((el, index) => {
+    if (index % 2 === 0) {
+      resArray.splice(index / 2, 0, el);
+      return;
+    }
+    resArray.splice(resArray.length - Math.floor(index / 2), 0, el);
+  });
+  return resArray;
+};
+
+// task-17(lodash)
+
+const reSortArrayLodash = arr => {
+  const resArray = [];
+  const sortedArray = _.sortBy(arr);
+  _.forEach(sortedArray, (el, index) => {
+    if (index % 2 === 0) {
+      resArray.splice(index / 2, 0, el);
+      return;
+    }
+    resArray.splice(resArray.length - _.floor(index / 2), 0, el);
+  });
+  return resArray;
+};
+
+// Test-17
+// console.log(reSortArray([1, 2, 3, 4, 5, 6, 7, 8, 9, 11]));
+// console.log(reSortArrayLodash([1, 2, 3, 4, 5, 6, 7, 8, 9, 11]));
